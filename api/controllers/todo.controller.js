@@ -19,6 +19,10 @@ const addTodo = async (req, res) => {
     if (!title) {
       return res.status(400).json({ message: "Title is required" });
     }
+    const existingTodo = await Todo.findOne({ title });
+    if (existingTodo) {
+      return res.status(400).json({ message: "Todo already exists" });
+    }
     const todo = await Todo.create({ title });
     res.status(201).json(todo);
   } catch (err) {
@@ -31,12 +35,12 @@ const addTodo = async (req, res) => {
 const editTodo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title } = req.body;
-    if (!title) {
-      return res.status(400).json({ message: "Title is required" });
-    }
+    const { title, completed } = req.body;
+    // if (!title) {
+    //   return res.status(400).json({ message: "Title is required" });
+    // }
 
-    const todo = await Todo.findByIdAndUpdate(id, title);
+    const todo = await Todo.findByIdAndUpdate(id, { title, completed });
     if (!todo) throw new Error("To do not found");
     const updatedTodo = await Todo.findById(id);
     res.status(200).json(updatedTodo);
